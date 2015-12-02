@@ -10,10 +10,15 @@
   // create a heatmap for each dataset
   dataPathArray.forEach(function(dataFileName){
     console.log(dataFileName)
+
     var data = d3.csv('./data/'+dataFileName,function(error, data){
       if (error) return console.warn(error);
+      var colCount = Object.keys(data[0]).length -1
+        , rowCount = data.length;
 
-      myHeatmap.height(myHeatmap.gridSize()*(1.5 * data.length))
+      myHeatmap.height( (myHeatmap.gridSize()*rowCount) +  myHeatmap.margin().top + myHeatmap.margin().bottom)
+      myHeatmap.width( (myHeatmap.gridSize()*colCount) + myHeatmap.margin().right + myHeatmap.margin().left)
+      myHeatmap.title( 'Heatmap: '+dataFileName )
       var container = d3.select("body").selectAll('#'+dataFileName);
 
       container.data([data])

@@ -50,17 +50,18 @@
 
 // add elements in which to place the chart
 function heatmap(){
-  var margin = { top: 50, right: 0, bottom: 100, left: 130 }
+  var gridSize = 50
+    , margin = { top: 100, right: 0, bottom: 100, left: 130 , legend: gridSize}
     , width =1500 - margin.left - margin.right
     , height = 1500 - margin.top - margin.bottom
-    , gridSize = Math.floor(width / 24)
-    , legendElementWidth = gridSize*2
-    , buckets = 9
     , colors = ['#990000','#ff9900']
     , colorDomain = [-2,2]
-    , colorScale = d3.scale.linear().domain(colorDomain).range(colors);
+    , colorScale = d3.scale.linear().domain(colorDomain).range(colors)
+    , title = 'Reuseable Heatmap';
 
   function chart(selection){
+    // the chart function builds the heatmap.
+    // note: selection is passed in from the .call(myHeatmap), which is the same as myHeatmap(d3.select('.stuff')) -- ??
     selection.each(function(data){
         console.log(data)
         console.log(height)
@@ -71,7 +72,6 @@ function heatmap(){
         data.forEach(function(d){
             rowLabelSet.add(d.row_name)
         })
-        var id = selection.attr('id');
 
         var svg = selection.append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -185,13 +185,15 @@ function heatmap(){
         */ 
 
          // create legend
+         var legendData = d3.range(colorDomain[0],colorDomain[1], (colorDomain[1]-colorDomain[0]) / columns );
+
          var legend = svg.append('g')
             .classed('legend',true)
-            .attr("transform", function(d,i) { return "translate(0," + (height + 20 ) + ")";});
+            .attr("transform", function(d,i) { return "translate(0," + ( height - margin.bottom - margin.top + margin.legend) + ")";});
 
          console.log((colorDomain[1]-colorDomain[0]) / columns)
-         legend.selectAll('.legend_rect')
-            .data(d3.range(colorDomain[0],colorDomain[1], (colorDomain[1]-colorDomain[0]) / columns ))
+         legend.selectAll('.legendRect')
+            .data(legendData)
             .enter().append('rect')
             .attr({
               x: function(d,i){ return gridSize * i }
@@ -200,28 +202,35 @@ function heatmap(){
             , width: gridSize
             })
             .classed('cell',true)
+            .classed('legendRect',true)
             .style('fill', function(d){
               return colorScale( +d )} );
 
+        legendData.push(colorDomain[1]);
+        console.log(legendData)
+        console.log(colorDomain[1])
 
-/*
-         var legend = svg.selectAll(".legend")
-            .data([0].concat(colorScale.quantiles()), function(d) { return d; });
-         legend.enter().append("g")
-            .attr("class", "legend");
-         legend.append("rect")
-             .attr("x", function(d, i) { return legendElementWidth * i; })
-             .attr("y", height)
-             .attr("width", legendElementWidth)
-             .attr("height", gridSize / 2)
-             .style("fill", function(d, i) { return colors[i]; });
-         legend.append("text")
-             .attr("class", "mono")
-             .text(function(d) { return "≥ " + Math.round(d); })
-             .attr("x", function(d, i) { return legendElementWidth * i; })
-             .attr("y", height + gridSize);
-         legend.exit().remove();
-*/
+        legend.selectAll('.legendText')
+            .data(legendData)
+            .enter().append('text')
+            .attr({
+              x: function(d,i) { return (i * gridSize)-5;}
+            , y: gridSize+10
+            , class:"legendText"
+            })
+            .text(function(d){return Math.round10(+d,-1)});
+
+        // Add title
+        svg.append('g')
+            .classed('title_container',true)
+            .append('text')
+            .classed('title',true)
+            .attr({
+                x: 0
+              , y: (margin.top/2)-(gridSize*2)
+            })
+            .text(title)
+
     })
   }
 
@@ -249,12 +258,6 @@ function heatmap(){
     return chart;
   };
 
-  chart.legendElementWidth = function(m) {
-    if (!arguments.length) { return legendElementWidth; }
-    legendElementWidth = m;
-    return chart;
-  };
-
   chart.buckets = function(m) {
     if (!arguments.length) { return buckets; }
     buckets = m;
@@ -270,6 +273,12 @@ function heatmap(){
   chart.colorDomain = function(d) {
     if (!arguments.length) { return colorDomain; }
     colorDomain = d;
+    return chart;
+  };
+
+  chart.title = function(t) {
+    if (!arguments.length) { return title; }
+    title = t;
     return chart;
   };
 
