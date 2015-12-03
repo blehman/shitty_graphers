@@ -1,3 +1,4 @@
+
 // Closure
 (function() {
   /**
@@ -258,21 +259,17 @@ function heatmap(){
     return chart;
   };
 
-  chart.buckets = function(m) {
-    if (!arguments.length) { return buckets; }
-    buckets = m;
-    return chart;
-  };
-
   chart.colors = function(c) {
     if (!arguments.length) { return colors; }
     colors = c;
+    colorScale = d3.scale.linear().domain(colorDomain).range(colors);
     return chart;
   };
 
   chart.colorDomain = function(d) {
     if (!arguments.length) { return colorDomain; }
     colorDomain = d;
+    colorScale = d3.scale.linear().domain(colorDomain).range(colors);
     return chart;
   };
 
@@ -284,4 +281,3 @@ function heatmap(){
 
   return chart
 }
-

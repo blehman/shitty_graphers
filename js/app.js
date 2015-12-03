@@ -1,3 +1,4 @@
+
 (function() {
   // call the heatmap constructor
   var myHeatmap = heatmap();
@@ -18,6 +19,7 @@
 
       myHeatmap.height( (myHeatmap.gridSize()*rowCount) +  myHeatmap.margin().top + myHeatmap.margin().bottom)
       myHeatmap.width( (myHeatmap.gridSize()*colCount) + myHeatmap.margin().right + myHeatmap.margin().left)
+      //myHeatmap.colors(['#e5f5f9','#2ca25f'])
       myHeatmap.title( 'Heatmap: '+dataFileName )
       var container = d3.select("body").selectAll('#'+dataFileName);
 
